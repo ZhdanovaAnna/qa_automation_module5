@@ -1,0 +1,33 @@
+stages:
+  - test
+
+unit_tests:
+  stage: test
+  image: python:3.13
+  script:
+    - pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+    - pytest tests/unit/ --junitxml=results/unit.xml
+  artifacts:
+    paths:
+      - results/
+
+api_tests:
+  stage: test
+  image: python:3.13
+  script:
+    - pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+    - pytest tests/api/ --junitxml=results/api.xml
+  artifacts:
+    paths:
+      - results/
+
+ui_tests:
+  stage: test
+  image: mcr.microsoft.com/playwright/python:v1.42.0-jammy
+  script:
+    - pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+    - playwright install --with-deps chromium
+    - pytest tests/ui/test_login.py tests/ui/test_ddt.py --alluredir=allure-results
+  artifacts:
+    paths:
+      - allure-results/

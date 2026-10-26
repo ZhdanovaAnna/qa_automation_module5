@@ -1,0 +1,5 @@
+username,password,expected
+valid_user,ValidPass1!,True
+invalid_user,wrong,False
+,ValidPass1!,False
+valid_user,,False
