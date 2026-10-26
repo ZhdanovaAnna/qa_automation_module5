@@ -1,0 +1,73 @@
+name: QA Automation Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+      - name: Run Unit tests
+        run: pytest tests/unit/ -v --junitxml=results/unit.xml
+      - name: Upload Unit test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: results/unit.xml
+
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+      - name: Run API tests
+        run: pytest tests/api/ -v --junitxml=results/api.xml
+      - name: Upload API test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: results/api.xml
+
+  ui-tests:
+    name: UI Tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          pip install --index-url https://pypi-mirror.gitverse.ru/simple/ -r requirements.txt
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium
+      - name: Run UI tests
+        run: pytest tests/ui/test_login.py -v --alluredir=allure-results
+      - name: Run DDT tests
+        run: pytest tests/ui/test_ddt.py -v --alluredir=allure-results
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
